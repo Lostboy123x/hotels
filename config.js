@@ -16,7 +16,7 @@ module.exports = {
   // ---- Which websites are allowed to load this widget ----
   // Add every domain the hotel will embed this on. Use "*" only while testing locally.
   allowedOrigins: [
-    "https://www.solanehouse.com"
+    "*"
     // "https://www.solanehouse.com"
   ],
 

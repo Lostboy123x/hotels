@@ -29,7 +29,7 @@ const chatLimiter = rateLimit({
 });
 
 // ---- Serve the embeddable widget file ----
-app.use("/widget.js", express.static(path.join(__dirname, "public", "widget.js")));
+app.use(express.static(path.join(__dirname, "public")));
 
 // ---- Public config the widget needs (safe, non-secret info only) ----
 app.get("/api/config", (req, res) => {
@@ -57,31 +57,35 @@ app.post("/api/chat", chatLimiter, async (req, res) => {
 
     const systemPrompt = buildSystemPrompt(language);
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    // Gemini uses "user" / "model" roles (not "assistant"), and wraps text in a
+    // "parts" array instead of a plain "content" string.
+    const contents = messages.map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }]
+    }));
+
+    const GEMINI_MODEL = "gemini-2.5-flash";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${process.env.GEMINI_API_KEY}`;
+
+    const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "claude-sonnet-5",
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: messages
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: contents,
+        generationConfig: { maxOutputTokens: 1000 }
       })
     });
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error("Anthropic API error:", response.status, errText);
+      console.error("Gemini API error:", response.status, errText);
       return res.status(502).json({ error: "AI service error, please try again" });
     }
 
     const data = await response.json();
-    const raw = (data.content || [])
-      .filter((b) => b.type === "text")
-      .map((b) => b.text)
+    const raw = ((data.candidates || [])[0]?.content?.parts || [])
+      .map((p) => p.text || "")
       .join("")
       .trim();
 
