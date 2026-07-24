@@ -1,15 +1,658 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Widget install test</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reth Mahal — A Haveli in the Dunes, Jaisalmer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A140D;
+    --indigo:#212C4C;
+    --indigo-deep:#141B33;
+    --terracotta:#A6501E;
+    --terracotta-deep:#7E3A15;
+    --sand:#EFE4C8;
+    --sand-dark:#DCC89B;
+    --gold:#C69A42;
+    --paper:#FAF5E9;
+    --line: rgba(26,20,13,0.14);
+    --shadow: 0 20px 50px -25px rgba(20,15,8,0.5);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Inter', sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    letter-spacing:-0.01em;
+  }
+  a{color:inherit; text-decoration:none;}
+  .mono{font-family:'JetBrains Mono', monospace; letter-spacing:0.02em;}
+  .wrap{max-width:1200px; margin:0 auto; padding:0 32px;}
+  @media (max-width:640px){ .wrap{padding:0 20px;} }
+
+  /* ---------- Jaali lattice pattern (signature texture, used throughout) ---------- */
+  .jaali-bg{
+    background-image:
+      radial-gradient(circle at 10px 10px, transparent 6px, currentColor 6.6px, transparent 7.2px);
+    background-size:20px 20px;
+    opacity:0.08;
+  }
+  .jaali-divider{
+    height:14px;
+    width:100%;
+    background-image: radial-gradient(circle at 7px 7px, var(--gold) 3.5px, transparent 4px);
+    background-size:14px 14px;
+    background-repeat:repeat-x;
+    opacity:0.55;
+  }
+
+  /* ---------- Nav ---------- */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    padding:20px 0;
+    transition:background 0.4s ease, padding 0.4s ease, box-shadow 0.4s ease;
+  }
+  header.scrolled{
+    background:rgba(250,245,233,0.92);
+    backdrop-filter:blur(8px);
+    padding:14px 0;
+    box-shadow:0 1px 0 var(--line);
+  }
+  nav{display:flex; align-items:center; justify-content:space-between;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:'Fraunces', serif; font-size:1.25rem; color:var(--indigo-deep);}
+  .brand svg{flex-shrink:0;}
+  .brand .sub{font-family:'Inter'; font-size:0.6rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--terracotta); display:block; margin-top:2px;}
+  .navlinks{display:flex; gap:34px; font-size:0.88rem; letter-spacing:0.01em;}
+  .navlinks a{position:relative; padding-bottom:4px; color:var(--ink); opacity:0.75; transition:opacity 0.2s;}
+  .navlinks a:hover{opacity:1;}
+  .nav-cta{
+    background:var(--terracotta); color:var(--paper); padding:10px 22px;
+    border-radius:2px; font-size:0.85rem; letter-spacing:0.02em;
+    transition:background 0.25s ease;
+  }
+  .nav-cta:hover{background:var(--terracotta-deep);}
+  .navlinks-wrap{display:flex; align-items:center; gap:36px;}
+  .mobile-toggle{display:none;}
+  @media (max-width:860px){
+    .navlinks{display:none;}
+    .mobile-toggle{display:block; font-size:0.85rem; border:1px solid var(--line); padding:8px 14px;}
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative; min-height:100vh;
+    display:flex; align-items:flex-end;
+    padding:120px 0 80px;
+    background:linear-gradient(180deg, #E7C687 0%, #DDA85F 22%, #C67A3E 46%, #A6501E 68%, #5A2E1C 88%, #2A1B18 100%);
+    overflow:hidden;
+  }
+  .hero::before{ /* sun */
+    content:"";
+    position:absolute; top:16%; left:50%; transform:translateX(-50%);
+    width:120px; height:120px; border-radius:50%;
+    background:radial-gradient(circle, #FFF3D6 0%, #FBDD9A 45%, rgba(251,221,154,0) 72%);
+    box-shadow:0 0 90px 30px rgba(251,221,154,0.35);
+  }
+  .dunes{
+    position:absolute; bottom:0; left:0; width:100%; height:46%;
+  }
+  .hero-jaali{
+    position:absolute; inset:0; color:#3A1F10;
+    background-image: radial-gradient(circle at 11px 11px, transparent 7px, currentColor 7.6px, transparent 8.4px);
+    background-size:22px 22px;
+    opacity:0.05;
+  }
+  .hero-content{position:relative; z-index:2; width:100%;}
+  .eyebrow{
+    font-size:0.75rem; letter-spacing:0.22em; text-transform:uppercase;
+    color:#FDF0D6; opacity:0.9; margin-bottom:18px; display:flex; align-items:center; gap:12px;
+  }
+  .eyebrow::before{content:""; width:34px; height:1px; background:#FDF0D6;}
+  .hero h1{
+    font-size:clamp(2.6rem, 6vw, 5rem);
+    color:#FCF3DE;
+    max-width:820px;
+    line-height:1.04;
+    text-shadow:0 2px 30px rgba(30,10,0,0.25);
+  }
+  .hero h1 em{font-style:italic; color:#FCE2AF;}
+  .hero p.lede{
+    max-width:520px; margin-top:22px; font-size:1.05rem; color:#FBEBCE; opacity:0.92;
+  }
+  .hero-actions{display:flex; gap:16px; margin-top:38px; flex-wrap:wrap;}
+  .btn-primary{
+    background:#FBEBCE; color:var(--indigo-deep); padding:15px 30px; font-size:0.9rem;
+    letter-spacing:0.02em; border-radius:2px; font-weight:500;
+    transition:transform 0.2s ease, background 0.2s ease;
+  }
+  .btn-primary:hover{background:#fff; transform:translateY(-2px);}
+  .btn-ghost{
+    border:1px solid rgba(251,235,206,0.55); color:#FBEBCE; padding:15px 26px;
+    font-size:0.9rem; border-radius:2px; transition:border-color 0.2s ease, background 0.2s ease;
+  }
+  .btn-ghost:hover{border-color:#FBEBCE; background:rgba(251,235,206,0.08);}
+
+  /* ---------- Section scaffolding ---------- */
+  section{padding:110px 0;}
+  @media (max-width:640px){ section{padding:70px 0;} }
+  .kicker{
+    font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--terracotta);
+    display:flex; align-items:center; gap:12px; margin-bottom:20px;
+  }
+  .kicker::before{content:""; width:28px; height:1px; background:var(--terracotta);}
+  h2.section-title{font-size:clamp(1.9rem, 3.6vw, 2.8rem); max-width:640px; line-height:1.12;}
+
+  /* ---------- Story ---------- */
+  .story{background:var(--paper);}
+  .story-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:70px; align-items:start;}
+  @media (max-width:860px){ .story-grid{grid-template-columns:1fr;} }
+  .story-art{
+    position:relative; aspect-ratio:4/5; border-radius:2px; overflow:hidden;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(252,227,175,0.5), transparent 45%),
+      linear-gradient(150deg, var(--sand-dark) 0%, var(--terracotta) 55%, var(--indigo-deep) 130%);
+  }
+  .story-art .arch{
+    position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+    width:78%; height:82%;
+    background:rgba(250,245,233,0.9);
+    border-radius:50% 50% 0 0 / 30% 30% 0 0;
+  }
+  .story-art .arch::after{
+    content:""; position:absolute; inset:14px;
+    border-radius:50% 50% 0 0 / 32% 32% 0 0;
+    background-image: radial-gradient(circle at 11px 11px, transparent 7px, var(--terracotta) 7.6px, transparent 8.4px);
+    background-size:22px 22px; opacity:0.18;
+  }
+  .story p{color:rgba(26,20,13,0.78); margin-top:18px; max-width:52ch;}
+  .story-stats{display:flex; gap:40px; margin-top:36px; flex-wrap:wrap;}
+  .story-stats div b{font-family:'Fraunces', serif; font-size:1.8rem; display:block; color:var(--indigo-deep);}
+  .story-stats div span{font-size:0.78rem; color:rgba(26,20,13,0.6); letter-spacing:0.02em;}
+
+  /* ---------- Sun path / signature timeline ---------- */
+  .sunpath-section{
+    background:var(--indigo-deep); color:var(--sand); position:relative; overflow:hidden;
+  }
+  .sunpath-section .kicker{color:var(--gold);}
+  .sunpath-section .kicker::before{background:var(--gold);}
+  .sunpath-section h2{color:var(--paper);}
+  .sunpath-section p.intro{color:rgba(239,228,200,0.75); max-width:56ch; margin-top:16px;}
+
+  #sky{
+    position:relative; margin-top:60px; border-radius:3px; overflow:hidden;
+    transition:background 0.6s ease;
+    padding:50px 40px 34px;
+  }
+  #sky .jaali-overlay{
+    position:absolute; inset:0; color:#000;
+    background-image: radial-gradient(circle at 11px 11px, transparent 7px, currentColor 7.6px, transparent 8.4px);
+    background-size:22px 22px; opacity:0.06; pointer-events:none;
+  }
+  .sun-track{position:relative; height:2px; background:rgba(239,228,200,0.25); margin-bottom:26px;}
+  .sun-track-fill{position:absolute; top:0; left:0; height:2px; background:var(--gold); width:0%; transition:width 0.5s ease;}
+  .sun-stops{display:flex; justify-content:space-between; position:relative;}
+  .sun-stop{
+    position:relative; background:none; border:none; cursor:pointer; color:inherit;
+    display:flex; flex-direction:column; align-items:center; gap:10px; flex:1; padding:0;
+  }
+  .sun-stop .dot{
+    width:11px; height:11px; border-radius:50%; background:rgba(239,228,200,0.35);
+    transition:background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .sun-stop.active .dot{background:var(--gold); box-shadow:0 0 0 6px rgba(198,154,66,0.22); transform:scale(1.15);}
+  .sun-stop .time{font-family:'JetBrains Mono', monospace; font-size:0.72rem; opacity:0.65;}
+  .sun-stop.active .time{opacity:1; color:var(--gold);}
+  .sun-stop .label{font-size:0.75rem; text-align:center; max-width:90px; opacity:0.55; display:none;}
+  @media (min-width:760px){ .sun-stop .label{display:block;} }
+
+  #sky-detail{
+    position:relative; margin-top:44px; display:grid; grid-template-columns:auto 1fr; gap:26px;
+    align-items:start;
+  }
+  #sky-detail .num{font-family:'JetBrains Mono', monospace; font-size:0.95rem; color:var(--gold); padding-top:4px;}
+  #sky-detail h3{font-size:1.5rem; color:var(--paper);}
+  #sky-detail p{color:rgba(239,228,200,0.78); margin-top:10px; max-width:56ch;}
+
+  /* ---------- Rooms ---------- */
+  .rooms{background:var(--paper);}
+  .room-grid{
+    display:grid; grid-template-columns:repeat(2, 1fr); gap:2px; margin-top:56px;
+    background:var(--line);
+  }
+  @media (max-width:760px){ .room-grid{grid-template-columns:1fr;} }
+  .room-card{
+    background:var(--paper); padding:44px; position:relative; transition:background 0.3s ease;
+  }
+  .room-card:hover{background:#F5EDD9;}
+  .room-card .swatch{
+    width:100%; height:150px; border-radius:2px; margin-bottom:26px; position:relative; overflow:hidden;
+  }
+  .room-card .swatch::after{
+    content:""; position:absolute; inset:0;
+    background-image: radial-gradient(circle at 11px 11px, transparent 7px, rgba(0,0,0,0.35) 7.6px, transparent 8.4px);
+    background-size:22px 22px; opacity:0.12;
+  }
+  .swatch.s1{background:linear-gradient(135deg, #E7C687, #A6501E);}
+  .swatch.s2{background:linear-gradient(135deg, #C9A96A, #7E3A15);}
+  .swatch.s3{background:linear-gradient(135deg, #8A9BC4, #212C4C);}
+  .swatch.s4{background:linear-gradient(135deg, #DCC89B, #5A2E1C);}
+  .room-card .top-row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;}
+  .room-card h3{font-size:1.3rem;}
+  .room-card .rate{font-family:'JetBrains Mono', monospace; font-size:0.95rem; color:var(--terracotta);}
+  .room-card .rate span{font-size:0.68rem; color:rgba(26,20,13,0.5); display:block; text-align:right;}
+  .room-card p{font-size:0.9rem; color:rgba(26,20,13,0.68); margin:14px 0 18px; max-width:44ch;}
+  .room-tags{display:flex; gap:8px; flex-wrap:wrap;}
+  .room-tags span{
+    font-size:0.7rem; border:1px solid var(--line); padding:5px 10px; border-radius:2px; color:rgba(26,20,13,0.6);
+  }
+
+  /* ---------- Experiences ---------- */
+  .experiences{background:#F5EDD9;}
+  .exp-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:36px; margin-top:56px;}
+  @media (max-width:860px){ .exp-grid{grid-template-columns:1fr;} }
+  .exp-card h3{font-size:1.2rem; margin-top:20px;}
+  .exp-card p{color:rgba(26,20,13,0.7); font-size:0.92rem; margin-top:10px;}
+  .exp-icon{width:44px; height:44px; display:flex; align-items:center; justify-content:center; color:var(--terracotta);}
+
+  /* ---------- Booking ---------- */
+  .booking{background:var(--indigo); color:var(--paper); position:relative;}
+  .booking-grid{display:grid; grid-template-columns:0.9fr 1.1fr; gap:70px; align-items:start;}
+  @media (max-width:900px){ .booking-grid{grid-template-columns:1fr;} }
+  .booking .kicker{color:var(--gold);} .booking .kicker::before{background:var(--gold);}
+  .booking h2{color:var(--paper);}
+  .booking p.intro{color:rgba(239,228,200,0.75); margin-top:16px; max-width:44ch;}
+  .booking-quote{margin-top:40px; border-left:2px solid var(--gold); padding-left:20px; font-family:'Fraunces', serif; font-style:italic; font-size:1.15rem; color:#F0E4C6; max-width:40ch;}
+  .booking-quote cite{display:block; font-family:'Inter'; font-style:normal; font-size:0.75rem; opacity:0.6; margin-top:10px;}
+
+  form.book-form{background:rgba(250,245,233,0.06); border:1px solid rgba(239,228,200,0.18); padding:38px; border-radius:3px;}
+  .form-row{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  @media (max-width:520px){ .form-row{grid-template-columns:1fr;} }
+  .field{margin-bottom:18px;}
+  .field label{display:block; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:rgba(239,228,200,0.55); margin-bottom:8px;}
+  .field input, .field select{
+    width:100%; background:rgba(250,245,233,0.05); border:1px solid rgba(239,228,200,0.22);
+    color:var(--paper); padding:12px 14px; font-family:'Inter'; font-size:0.92rem; border-radius:2px;
+  }
+  .field input::placeholder{color:rgba(239,228,200,0.35);}
+  .field input:focus, .field select:focus{outline:2px solid var(--gold); outline-offset:1px; border-color:var(--gold);}
+  .field select option{color:#111;}
+  .submit-btn{
+    width:100%; background:var(--gold); color:var(--indigo-deep); padding:15px; border:none;
+    font-family:'Inter'; font-weight:600; font-size:0.92rem; border-radius:2px; cursor:pointer;
+    transition:background 0.2s ease; margin-top:6px;
+  }
+  .submit-btn:hover{background:#DDB45E;}
+  .confirm-msg{
+    display:none; margin-top:20px; padding:16px 18px; border-radius:2px;
+    background:rgba(198,154,66,0.14); border:1px solid rgba(198,154,66,0.4);
+    font-size:0.88rem; color:#F5E5B8;
+  }
+  .confirm-msg.show{display:block;}
+
+  /* ---------- Footer ---------- */
+  footer{background:var(--ink); color:rgba(239,228,200,0.6); padding:70px 0 34px;}
+  .footer-grid{display:grid; grid-template-columns:1.3fr 1fr 1fr 1fr; gap:40px;}
+  @media (max-width:760px){ .footer-grid{grid-template-columns:1fr 1fr;} }
+  footer h4{color:var(--paper); font-size:0.95rem; margin-bottom:16px; font-weight:500;}
+  footer .brand-mark{color:var(--paper); font-family:'Fraunces', serif; font-size:1.4rem; margin-bottom:12px;}
+  footer p, footer li{font-size:0.85rem; line-height:1.9;}
+  footer ul{list-style:none;}
+  footer a:hover{color:var(--paper);}
+  .footer-bottom{
+    margin-top:60px; padding-top:24px; border-top:1px solid rgba(239,228,200,0.12);
+    display:flex; justify-content:space-between; font-size:0.78rem; flex-wrap:wrap; gap:10px;
+  }
+
+  /* ---------- Reveal on scroll ---------- */
+  .reveal{opacity:0; transform:translateY(24px); transition:opacity 0.7s ease, transform 0.7s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .reveal{opacity:1; transform:none; transition:none;}
+    *{transition:none !important; animation:none !important;}
+  }
+
+  :focus-visible{outline:2px solid var(--terracotta); outline-offset:2px;}
+</style>
 </head>
 <body>
-  <h1>This is a stand-in for the hotel's real website.</h1>
-  <p>If the chat bubble appears bottom-right and responds, the widget is installed correctly.</p>
 
-  <!-- THIS is the exact snippet you hand to the hotel's web person. -->
-  <!-- Replace the URL with your real deployed backend URL once it's live. -->
-  <script src="http://localhost:3000/widget.js" data-backend="http://localhost:3000"></script>
+<header id="site-header">
+  <div class="wrap">
+    <nav>
+      <a href="#top" class="brand">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><path d="M15 2 L27 15 L15 28 L3 15 Z" stroke="currentColor" stroke-width="1.4"/><circle cx="15" cy="15" r="4" stroke="currentColor" stroke-width="1.4"/></svg>
+        <span>Reth Mahal<span class="sub">Jaisalmer · Est. 1626</span></span>
+      </a>
+      <div class="navlinks-wrap">
+        <div class="navlinks">
+          <a href="#story">The Haveli</a>
+          <a href="#day">A Day Here</a>
+          <a href="#rooms">Rooms</a>
+          <a href="#experiences">Experiences</a>
+          <a href="#book" class="nav-cta">Check Availability</a>
+        </div>
+        <button class="mobile-toggle" onclick="document.getElementById('book').scrollIntoView({behavior:'smooth'})">Book</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div class="hero-jaali"></div>
+  <div class="wrap hero-content">
+    <div class="eyebrow">A restored 1626 haveli, Thar Desert, Rajasthan</div>
+    <h1>Where the desert <em>keeps time,</em><br>and so do we.</h1>
+    <p class="lede">Twenty-two rooms inside a sandstone merchant's mansion, carved back from four centuries of sand — twelve kilometres from the dunes of Sam, and a courtyard away from the old city of Jaisalmer.</p>
+    <div class="hero-actions">
+      <a href="#book" class="btn-primary">Check availability</a>
+      <a href="#day" class="btn-ghost">See a day at Reth Mahal</a>
+    </div>
+  </div>
+</section>
+
+<section class="story" id="story">
+  <div class="wrap">
+    <div class="story-grid">
+      <div class="reveal">
+        <div class="kicker">The Haveli</div>
+        <h2 class="section-title">A merchant's house, given back its rooms one arch at a time.</h2>
+        <p>Reth Mahal was built in 1626 by a family of opium and spice traders on the old caravan road to Sindh. It fell quiet for three decades until 2011, when the carved sandstone jharokhas were uncovered under drifted sand and the restoration began — stone by stone, using the same quarry the original masons used, eleven kilometres north.</p>
+        <p>Every jaali lattice you see cut into a window or a railing here is hand-chiselled by the same family of stone-carvers who worked on the original haveli six generations ago. Nothing is reproduced from a catalogue.</p>
+        <div class="story-stats">
+          <div><b>22</b><span>rooms &amp; suites</span></div>
+          <div><b>1626</b><span>year built</span></div>
+          <div><b>6th</b><span>generation of stone-carvers still working here</span></div>
+        </div>
+      </div>
+      <div class="story-art reveal"><div class="arch"></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sunpath-section" id="day">
+  <div class="wrap">
+    <div class="kicker">A Day at Reth Mahal</div>
+    <h2 class="section-title">Follow the sun across the courtyard — it sets the whole day's rhythm here.</h2>
+    <p class="intro">The haveli was built around the sun, not the clock: rooms face east for the cool morning light, the courtyard well shades the afternoon, and the rooftop catches every desert sunset. Move through the hours below.</p>
+
+    <div id="sky">
+      <div class="jaali-overlay"></div>
+      <div class="sun-track"><div class="sun-track-fill" id="track-fill"></div></div>
+      <div class="sun-stops" id="sun-stops"></div>
+      <div id="sky-detail">
+        <div class="num" id="detail-num">01</div>
+        <div>
+          <h3 id="detail-title"></h3>
+          <p id="detail-body"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="rooms" id="rooms">
+  <div class="wrap">
+    <div class="kicker">Rooms &amp; Suites</div>
+    <h2 class="section-title">Four rooms, four vantage points on the same haveli.</h2>
+    <div class="room-grid">
+
+      <div class="room-card reveal">
+        <div class="swatch s1"></div>
+        <div class="top-row">
+          <h3>Jharokha Suite</h3>
+          <div class="rate mono">₹18,500<span>per night</span></div>
+        </div>
+        <p>The original balcony room of the haveli, with a carved sandstone jharokha overhanging the street below and a private sit-out for morning tea.</p>
+        <div class="room-tags"><span>Balcony</span><span>King bed</span><span>38 m²</span></div>
+      </div>
+
+      <div class="room-card reveal">
+        <div class="swatch s3"></div>
+        <div class="top-row">
+          <h3>Stepwell Villa</h3>
+          <div class="rate mono">₹32,000<span>per night</span></div>
+        </div>
+        <p>A standalone villa built around a working stepwell, its indigo-tiled bathing pool fed by the same aquifer the original household drew from.</p>
+        <div class="room-tags"><span>Private pool</span><span>2 bedrooms</span><span>84 m²</span></div>
+      </div>
+
+      <div class="room-card reveal">
+        <div class="swatch s2"></div>
+        <div class="top-row">
+          <h3>Courtyard Room</h3>
+          <div class="rate mono">₹12,800<span>per night</span></div>
+        </div>
+        <p>Ground-floor rooms opening onto the shaded central courtyard — the coolest rooms in the house through the peak summer months.</p>
+        <div class="room-tags"><span>Courtyard access</span><span>Queen bed</span><span>26 m²</span></div>
+      </div>
+
+      <div class="room-card reveal">
+        <div class="swatch s4"></div>
+        <div class="top-row">
+          <h3>Tower Room</h3>
+          <div class="rate mono">₹24,000<span>per night</span></div>
+        </div>
+        <p>The former watchtower, four flights up, with unbroken views over the rooftops of Jaisalmer to the dunes on the horizon.</p>
+        <div class="room-tags"><span>Rooftop views</span><span>King bed</span><span>30 m²</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="experiences" id="experiences">
+  <div class="wrap">
+    <div class="kicker">Beyond the Haveli</div>
+    <h2 class="section-title">What guests actually spend their afternoons on.</h2>
+    <div class="exp-grid">
+      <div class="exp-card reveal">
+        <div class="exp-icon"><svg width="38" height="38" viewBox="0 0 38 38" fill="none"><circle cx="19" cy="19" r="16" stroke="currentColor" stroke-width="1.3"/><path d="M19 3v6M19 29v6M3 19h6M29 19h6" stroke="currentColor" stroke-width="1.3"/></svg></div>
+        <h3>Sunset dune safari</h3>
+        <p>A 40-minute camel ride into the Sam dunes for sunset, followed by a folk music set around a fire — arranged privately, not with the tour-bus crowd.</p>
+      </div>
+      <div class="exp-card reveal">
+        <div class="exp-icon"><svg width="38" height="38" viewBox="0 0 38 38" fill="none"><path d="M19 4 L34 19 L19 34 L4 19Z" stroke="currentColor" stroke-width="1.3"/></svg></div>
+        <h3>Stone-carving workshop</h3>
+        <p>An afternoon with the resident carving family, learning the jaali lattice technique on offcuts of the same sandstone the haveli is built from.</p>
+      </div>
+      <div class="exp-card reveal">
+        <div class="exp-icon"><svg width="38" height="38" viewBox="0 0 38 38" fill="none"><circle cx="19" cy="14" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 34c0-7 5-11 11-11s11 4 11 11" stroke="currentColor" stroke-width="1.3"/></svg></div>
+        <h3>Rooftop stargazing</h3>
+        <p>A telescope, a local astronomer, and near-zero light pollution — the desert sky here shows the Milky Way clearly most nights of the year.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="booking" id="book">
+  <div class="wrap">
+    <div class="booking-grid">
+      <div class="reveal">
+        <div class="kicker">Reserve</div>
+        <h2 class="section-title">Check availability</h2>
+        <p class="intro">This is a demo site, so nothing here actually books a room — but the form works end to end.</p>
+        <blockquote class="booking-quote">"We came for one night on the way to Jodhpur and stayed four. The stepwell room ruined every hotel pool for us."<cite>— a guest, this spring</cite></blockquote>
+      </div>
+      <form class="book-form reveal" id="bookForm">
+        <div class="form-row">
+          <div class="field">
+            <label for="checkin">Check-in</label>
+            <input type="date" id="checkin" required>
+          </div>
+          <div class="field">
+            <label for="checkout">Check-out</label>
+            <input type="date" id="checkout" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="guests">Guests</label>
+            <select id="guests">
+              <option>1 guest</option>
+              <option selected>2 guests</option>
+              <option>3 guests</option>
+              <option>4 guests</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="room">Room type</label>
+            <select id="room">
+              <option>Courtyard Room</option>
+              <option>Jharokha Suite</option>
+              <option>Tower Room</option>
+              <option>Stepwell Villa</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="name">Full name</label>
+          <input type="text" id="name" placeholder="As on your ID" required>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="you@email.com" required>
+        </div>
+        <button type="submit" class="submit-btn">Request reservation</button>
+        <div class="confirm-msg" id="confirmMsg"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="brand-mark">Reth Mahal</div>
+        <p>A restored 1626 haveli on the old caravan road, Jaisalmer, Rajasthan.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="#story">The Haveli</a></li>
+          <li><a href="#day">A Day Here</a></li>
+          <li><a href="#rooms">Rooms</a></li>
+          <li><a href="#experiences">Experiences</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li>Gopa Chowk, Jaisalmer</li>
+          <li>Rajasthan 345001, India</li>
+          <li>hello@rethmahal.example</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Hours</h4>
+        <ul>
+          <li>Reception — 24 hours</li>
+          <li>Check-in from 1 PM</li>
+          <li>Check-out by 11 AM</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Reth Mahal. Demo website — fictional property.</span>
+      <span>Built with a fictional dataset for demonstration purposes.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Header scroll state
+  const header = document.getElementById('site-header');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // Reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:0.15});
+  revealEls.forEach(el => io.observe(el));
+
+  // ---- Sun path signature widget ----
+  const stops = [
+    {time:"6:40 AM", label:"Sunrise", sky:["#F3D9A8","#E7A55E","#C4703A"],
+     title:"Sunrise yoga on the rooftop", body:"Before the heat sets in, a short session on the tower rooftop facing east — the same wall the original watchmen used to scan the caravan road for arrivals."},
+    {time:"9:00 AM", label:"Breakfast", sky:["#F6E3B8","#E9B26C","#B9622F"],
+     title:"Breakfast in the courtyard", body:"Ker sangri, bajra rotis and desert-grown melon, served under the neem tree that's older than the restoration itself, while the courtyard is still fully shaded."},
+    {time:"1:00 PM", label:"Peak heat", sky:["#E7C687","#C67A3E","#7E3A15"],
+     title:"The stepwell hour", body:"By early afternoon the courtyard stepwell is the coolest place on the property — most guests read here, or nap through the worst of the desert heat like the household always did."},
+    {time:"5:30 PM", label:"Golden hour", sky:["#C4703A","#8A4322","#3F2416"],
+     title:"Dune safari departs", body:"Camels leave from the haveli gate for the 40-minute ride to Sam, timed to reach the dune crest just as the light turns gold."},
+    {time:"7:15 PM", label:"Sunset", sky:["#5A2E1C","#3A2318","#1C1410"],
+     title:"Sunset from the tower", body:"The watchtower room's balcony catches the last light over the city rooftops — most guests bring a drink up and just watch it happen."},
+    {time:"9:30 PM", label:"Night", sky:["#1C2140","#161B33","#0D1224"],
+     title:"Stargazing on the roof", body:"A telescope comes out most clear nights. With almost no light pollution this far from Jaisalmer's centre, the Milky Way is visible to the naked eye."}
+  ];
+
+  const sunStopsEl = document.getElementById('sun-stops');
+  const sky = document.getElementById('sky');
+  const trackFill = document.getElementById('track-fill');
+  const detailNum = document.getElementById('detail-num');
+  const detailTitle = document.getElementById('detail-title');
+  const detailBody = document.getElementById('detail-body');
+
+  stops.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'sun-stop';
+    btn.setAttribute('aria-label', s.time + ' — ' + s.label);
+    btn.innerHTML = `<span class="time mono">${s.time}</span><span class="dot"></span><span class="label">${s.label}</span>`;
+    btn.addEventListener('click', () => setStop(i));
+    sunStopsEl.appendChild(btn);
+  });
+
+  function setStop(i){
+    const s = stops[i];
+    document.querySelectorAll('.sun-stop').forEach((el, idx) => el.classList.toggle('active', idx === i));
+    trackFill.style.width = ((i)/(stops.length-1) * 100) + '%';
+    sky.style.background = `linear-gradient(120deg, ${s.sky[0]}, ${s.sky[1]} 55%, ${s.sky[2]})`;
+    detailNum.textContent = String(i+1).padStart(2,'0');
+    detailTitle.textContent = s.title;
+    detailBody.textContent = s.body;
+  }
+  setStop(0);
+
+  // ---- Booking form (demo — no real submission) ----
+  const form = document.getElementById('bookForm');
+  const confirmMsg = document.getElementById('confirmMsg');
+  const checkin = document.getElementById('checkin');
+  const checkout = document.getElementById('checkout');
+  const today = new Date().toISOString().split('T')[0];
+  checkin.min = today;
+  checkout.min = today;
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if(checkout.value && checkin.value && checkout.value <= checkin.value){
+      confirmMsg.textContent = "Check-out must be after check-in.";
+      confirmMsg.classList.add('show');
+      return;
+    }
+    const room = document.getElementById('room').value;
+    const guests = document.getElementById('guests').value;
+    confirmMsg.textContent = `Request received — ${room} for ${guests}, ${checkin.value} to ${checkout.value}. A confirmation would normally be emailed within 24 hours.`;
+    confirmMsg.classList.add('show');
+    form.querySelector('.submit-btn').textContent = 'Request sent';
+  });
+  <script src="https://hotelschatbot.onrender.com/widget.js" data-backend="https://hotelschatbot.onrender.com"></script>
+</script>
+
 </body>
 </html>
