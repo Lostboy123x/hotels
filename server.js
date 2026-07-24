@@ -63,8 +63,7 @@ app.post("/api/chat", chatLimiter, async (req, res) => {
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }]
     }));
-
-    const GEMINI_MODEL = "gemini-2.5-flash";
+const GEMINI_MODEL = "gemini-3.5-flash-lite";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
     const response = await fetch(url, {
