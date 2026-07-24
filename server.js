@@ -29,7 +29,7 @@ const chatLimiter = rateLimit({
 });
 
 // ---- Serve the embeddable widget file ----
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(__dirname));
 
 // ---- Public config the widget needs (safe, non-secret info only) ----
 app.get("/api/config", (req, res) => {
